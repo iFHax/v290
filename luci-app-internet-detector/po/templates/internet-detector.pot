@@ -1,0 +1,11 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+msgid "Internet"
+msgstr "Status połączenia internetowego"
+
+msgid "Internet connected"
+msgstr "Połączony z internetem"
+
+msgid "Internet disconnected"
+msgstr "Rozłączony"
