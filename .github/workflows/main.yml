@@ -45,7 +45,7 @@ jobs:
           done
 
       - name: Upload IPK files as artifacts
-        uses: actions/upload-artifact@v2  # Corrected to use v2
+        uses: actions/upload-artifact@v2.2.4  # Using explicit commit SHA
         with:
           name: ipk-packages
           path: '**/*.ipk'
