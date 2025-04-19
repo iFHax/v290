@@ -45,7 +45,7 @@ jobs:
           done
 
       - name: Upload IPK files as artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2  # Corrected to use v2
         with:
           name: ipk-packages
           path: '**/*.ipk'
