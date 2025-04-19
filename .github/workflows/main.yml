@@ -16,120 +16,44 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v2
 
-      - name: Set up OpenWrt build environment
+      - name: Set up OpenWrt 24.10.0 build environment
         run: |
-          # Update and install required tools for building OpenWrt packages
           sudo apt-get update
           sudo apt-get install -y build-essential fakeroot dpkg-dev git unzip zlib1g-dev
           sudo apt-get install -y gawk gcc make
 
-      - name: Install OpenWrt build dependencies
+      - name: Clone OpenWrt 24.10.0 repository
         run: |
-          # Clone OpenWrt repository (if needed, or use your existing build system)
-          git clone https://git.openwrt.org/openwrt/openwrt.git
-          cd openwrt
+          git clone --branch openwrt-24.10.0 https://git.openwrt.org/openwrt/openwrt.git openwrt-24.10.0
+          cd openwrt-24.10.0
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      - name: Install dependencies for luci-app-3ginfo-lite
-        run: |
-          cd luci-app-3ginfo-lite
-          # Install app-specific dependencies (example)
-          sudo apt-get install -y libboost-all-dev libssl-dev libcurl4-openssl-dev
-          cd ..
-
-      - name: Install dependencies for luci-app-atcommands
-        run: |
-          cd luci-app-atcommands
-          # Install app-specific dependencies (example)
-          sudo apt-get install -y libboost-all-dev libssl-dev libcurl4-openssl-dev
-          cd ..
-
-      - name: Install dependencies for luci-app-internet-detector
-        run: |
-          cd luci-app-internet-detector
-          # Install app-specific dependencies (example)
-          sudo apt-get install -y libboost-all-dev libssl-dev libcurl4-openssl-dev
-          cd ..
-
-      - name: Install dependencies for luci-app-modemband
-        run: |
-          cd luci-app-modemband
-          # Install app-specific dependencies (example)
-          sudo apt-get install -y libboost-all-dev libssl-dev libcurl4-openssl-dev
-          cd ..
-
-      - name: Install dependencies for luci-app-modeminfo
-        run: |
-          cd luci-app-modeminfo
-          # Install app-specific dependencies (example)
-          sudo apt-get install -y libboost-all-dev libssl-dev libcurl4-openssl-dev
-          cd ..
-
-      - name: Install dependencies for luci-app-sms-tool-js
-        run: |
-          cd luci-app-sms-tool-js
-          # Install app-specific dependencies (example)
-          sudo apt-get install -y libboost-all-dev libssl-dev libcurl4-openssl-dev
-          cd ..
-
-      - name: Install dependencies for luci-app-ttl
-        run: |
-          cd luci-app-ttl
-          # Install app-specific dependencies (example)
-          sudo apt-get install -y libboost-all-dev libssl-dev libcurl4-openssl-dev
-          cd ..
-
-      - name: Install dependencies for modemband
-        run: |
-          cd modemband
-          # Install app-specific dependencies (example)
-          sudo apt-get install -y libboost-all-dev libssl-dev libcurl4-openssl-dev
-          cd ..
-
-      - name: Install dependencies for quectel_CM_5G_M
-        run: |
-          cd quectel_CM_5G_M
-          # Install app-specific dependencies (example)
-          sudo apt-get install -y libboost-all-dev libssl-dev libcurl4-openssl-dev
-          cd ..
-
-      - name: Install dependencies for quectel_cm_5G
-        run: |
-          cd quectel_cm_5G
-          # Install app-specific dependencies (example)
-          sudo apt-get install -y libboost-all-dev libssl-dev libcurl4-openssl-dev
-          cd ..
-
-      - name: Install dependencies for sms-tool
-        run: |
-          cd sms-tool
-          # Install app-specific dependencies (example)
-          sudo apt-get install -y libboost-all-dev libssl-dev libcurl4-openssl-dev
-          cd ..
-
       - name: Build IPK for all apps
         run: |
-          # Loop through each app directory and detect the Makefile
           for app_dir in */; do
             if [ -d "$app_dir" ]; then
               echo "Building IPK for $app_dir"
               cd "$app_dir"
-
-              # Check if Makefile exists and run 'make package' or default target
               if [ -f "Makefile" ]; then
-                echo "Found Makefile in $app_dir, running make"
                 make clean && make package || make
               else
                 echo "No Makefile found in $app_dir"
               fi
-
               cd ..
             fi
           done
 
       - name: Upload IPK files as artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ipk-packages
           path: '**/*.ipk'
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: '**/*.ipk'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
